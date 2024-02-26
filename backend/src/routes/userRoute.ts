@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getAllUsers,
+  userLogout,
   userSignin,
   userSignup,
   verifyUser,
@@ -14,5 +15,6 @@ userRoute.get("/", getAllUsers);
 userRoute.post("/signin", userSignin);
 userRoute.post("/signup", validate(signupValidator), userSignup);
 userRoute.get("/auth-status", verifyToken, verifyUser);
+userRoute.get("/logout", verifyToken, userLogout);
 
 export default userRoute;
