@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography } from "@mui/material";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 
 const extractCode = (message: string) => {
   if (message.includes("```")) {
@@ -34,8 +35,8 @@ const Chatitem = ({
   const messageBlocks = extractCode(content);
   return role === "assistant" ? (
     <Box sx={{ display: "flex", p: 2, bgcolor: "#004d5612", my: 2, gap: 2 }}>
-      <Avatar sx={{ ml: "0" }}>
-        <span>image here</span>
+      <Avatar sx={{ ml: "0" ,bgcolor: "black", color: "white"}}>
+        <SmartToyIcon />
       </Avatar>
       <Box>
         {!messageBlocks && (

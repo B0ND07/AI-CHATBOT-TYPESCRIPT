@@ -1,24 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/User.js";
-import { hash, compare } from "bcrypt";
-import jwt from "jsonwebtoken"
-import { createToken } from "../utils/token-manager.js";
+import bcrypt from "bcrypt";
+import jwt, { JwtPayload } from "jsonwebtoken"
 import { COOKIE_NAME } from "../utils/constants.js";
 
-export const getAllUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const users = await User.find();
-    res.status(200).json({ message: "ok", users });
-  } catch (error) {
-    console.log(error);
-
-    res.status(200).json({ message: "Error", cause: error.message });
-  }
-};
 
 export const userSignup = async (
   req: Request,
@@ -27,39 +12,49 @@ export const userSignup = async (
 ) => {
   try {
     const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.json("already registered");
+    console.log("gfasd",name,email,password);
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Name, email, and password are required" });
     }
-    const hashedPassword = await hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword });
-    await user.save();
+    const existingUser = await User.findOne({ email});
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "User with this email or username already exists" });
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
 
-    res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      domain: "localhost",
-      signed: true,
-      path: "/",
+    const newUser = {
+      name:req.body.name,
+      email:req.body.email,
+      password: hash,
+    };
+
+    const user = await User.create(newUser);
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "2d",
     });
 
-    const token = createToken(user._id.toString(), user.email, "7d");
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 7);
-    res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: "localhost",
-      expires,
+    //expire in two day (that 2 indicates day)
+
+    const options = {
+      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      signed: true,
-    });
+      secure: true,
+      // sameSite: "None",
+    };
+    res.cookie("token", token, options);
 
-    res.status(201).json({ message: "ok", user });
-  } catch (error) {
-    console.log(error);
-
-    res.status(200).json({ message: "Error", cause: error.message });
+    res.json({ user });
+  } catch (err) {
+    res.json(err);
+    console.log(err);
   }
 };
+
 
 export const userSignin = async (
   req: Request,
@@ -67,65 +62,59 @@ export const userSignin = async (
   next: NextFunction
 ) => {
   try {
-    console.log("first")
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json("not registered");
-    }
-    const isPasswordCorrect = await compare(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(403).json("incorrect password");
-    }
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.json("User not found!");
 
-    res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      domain: "localhost",
-      signed: true,
-      path: "/",
+    const isPasswordCorrect = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!isPasswordCorrect) return res.json("Wrong password or username!");
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "2d",
     });
 
-    const token = createToken(user._id.toString(), user.email, "7d");
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 7);
-    res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: "localhost",
-      expires,
+    //expire in two day (that 2 indicates day)
+
+    const options = {
+      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      signed: true,
-    });
+      secure: true,
+      // sameSite: "None",
+    };
+    res.cookie("token", token, options);
 
-    res.status(200).json({ message: "ok", user });
-  } catch (error) {
-    console.log(error);
-
-    res.status(200).json({ message: "Error", cause: error.message });
+    res.json({ user });
+  } catch (err) {
+    res.json(err);
+    console.log(err);
   }
 };
 
 export const verifyUser = async (
-  req: Request,
+  req: Request& { user?: any },
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    //user token check
-    const user = await User.findById(res.locals.jwtData.id);
-    if (!user) {
-      return res.status(401).send("User not registered OR Token malfunctioned");
-    }
-    if (user._id.toString() !== res.locals.jwtData.id) {
-      return res.status(401).send("Permissions didn't match");
-    }
-    return res
-      .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
-  } catch (error) {
-    console.log(error);
-    return res.status(200).json({ message: "ERROR", cause: error.message });
+  try{
+  const { token } = req.cookies;
+
+  if (!token) {
+      return res.json("Please Login to access this resource.")
   }
-};
+
+  const decodedData = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+  const user = await User.findById(decodedData.id)
+
+  if (!user) {
+      return res.json("Please Login to access this resource.")
+  }
+
+  req.user = user;
+  next();
+}catch(err){}
+}
 
 export const userLogout = async (
   req: Request,

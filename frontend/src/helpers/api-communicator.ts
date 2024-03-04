@@ -8,22 +8,29 @@ export const loginUser = async (email: string, password: string) => {
   const data = await res.data;
   return data;
 };
-export const RegisterUser = async (email: string, password: string,name:string) => {
-  const res = await axios.post("/user/signin", { email, password,name });
-  if (res.status !== 200) {
-    throw new Error("uanble to login");
+export const RegisterUser = async (
+  email: string,
+  name: string,
+  password: string
+) => {
+  try {
+    const res = await axios.post("/user/signup", { email, name, password });
+    const data = await res.data;
+   
+
+    return data;
+  } catch (err) {
+    console.log(err);
   }
-  const data = await res.data;
-  return data;
 };
 
 export const checkAuthStatus = async () => {
+  try{
   const res = await axios.get("/user/auth-status");
-  if (res.status !== 200) {
-    throw new Error("Unable to authenticate");
-  }
+  if(res){
   const data = await res.data;
-  return data;
+  return data;}
+  }catch(err){}
 };
 
 export const sendChatRequest = async (message: string) => {

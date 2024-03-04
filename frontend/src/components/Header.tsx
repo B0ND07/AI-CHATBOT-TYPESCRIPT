@@ -1,5 +1,4 @@
 import { AppBar, Toolbar } from "@mui/material";
-import React from "react";
 import Logo from "./shared/Logo";
 import { useAuth } from "../context/AuthContext";
 import NavigationLink from "./shared/NavigationLink";
@@ -15,12 +14,12 @@ const Header = () => {
         <div>
           {auth?.isLoggedIn ? (
             <>
-            <NavigationLink
+            {/* <NavigationLink
               bg="#00fffc"
               to="/chat"
               text="go to chat"
               textColor="black"
-            />
+            /> */}
             <NavigationLink
               bg="yellow"
               to="/"
@@ -34,7 +33,7 @@ const Header = () => {
             <>
               <NavigationLink
                 bg="#00fffc"
-                to="/login"
+                to="/"
                 text="login"
                 textColor="black"
               />

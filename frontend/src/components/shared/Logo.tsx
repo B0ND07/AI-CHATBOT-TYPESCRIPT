@@ -12,10 +12,10 @@ const Logo = () => {
         gap: "8px",
       }}
     >
-      <Link to={"/"}>
+      <Link style={{textDecoration:"none"}} to={"/"}>
         <Typography
           sx={{
-            display: { md: "block", sm: "none", xs: "none" },
+            display: "block",
             mr: "auto",
             fontWeight: "800",
             textShadow: "2px 2px #000",

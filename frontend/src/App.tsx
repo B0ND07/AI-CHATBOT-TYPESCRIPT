@@ -6,16 +6,14 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
-import { useAuth } from "./context/AuthContext";
+
 
 function App() {
-  console.log(useAuth()?.isLoggedIn);
   
   return <main>
     <Header/>
     <Routes>
       <Route path="/" element={<><Home/><Login/></>}/>
-      {/* <Route path="/login" element={<Login/>}/> */}
       <Route path="/signup" element={<SignUp/>}/>
       <Route path="/chat" element={<Chat/>}/>
       <Route path="/*" element={<NotFound/>}/>

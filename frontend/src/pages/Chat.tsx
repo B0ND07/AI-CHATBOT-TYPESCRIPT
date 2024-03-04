@@ -2,7 +2,7 @@ import { Avatar, Box, Button, IconButton, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import { IoMdSend } from "react-icons/io";
 import Chatitem from "../components/chat/Chatitem";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   deleteChats,
   getUserChats,
@@ -22,6 +22,13 @@ const Chat = () => {
   const navigate = useNavigate();
 
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
+  
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   const handleSubmit = async () => {
     const content = inputRef.current?.value as string;
     if (inputRef && inputRef.current) {
@@ -178,6 +185,7 @@ const Chat = () => {
               color: "white",
               fontSize: "20px",
             }}
+            onKeyDown={handleKeyPress}
           />
           <IconButton onClick={handleSubmit} sx={{ color: "white", mx: 1 }}>
             <IoMdSend />

@@ -14,14 +14,14 @@ const Login = () => {
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    console.log(email, password);
+  
     try {
       toast.loading("signing in", { id: "login" });
       await auth?.login(email, password);
       toast.success("signed in success", { id: "login" });
     } catch (error) {
       toast.error("signing error", { id: "login" });
-      console.log(error);
+     
     }
   };
   useEffect(() => {
@@ -30,17 +30,11 @@ const Login = () => {
     }
   }, [auth]);
   return (
-    <Box width={"100%"} height={"100%"}>
-     
-      <Box
-        display={"flex"}
-        flex={{ xs: 1, md: 0.5 }}
-        justifyContent={"center"}
-        alignItems={"center"}
-        padding={2}
-        ml={"auto"}
-        mt={6}
-      >
+    <Box width={"100%"} height={"80vh"} display="flex"
+    justifyContent="center"
+    alignItems="center"
+        >
+  
         <form
           onSubmit={handleSubmit}
           style={{
@@ -90,7 +84,7 @@ const Login = () => {
           </Box>
         </form>
       </Box>
-    </Box>
+  
   );
 };
 
