@@ -30,7 +30,7 @@ const Login = () => {
     }
   }, [auth]);
   return (
-    <Box width={"100%"} height={"80vh"} display="flex"
+    <Box width={"100%"} height={"60vh"} display="flex"
     justifyContent="center"
     alignItems="center"
         >
