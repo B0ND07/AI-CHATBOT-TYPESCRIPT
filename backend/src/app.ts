@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import morgan from "morgan";
@@ -15,5 +15,8 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(morgan("dev"));
 
 app.use("/api/v1", router);
+app.get("/", (req: Request, res:Response) => {
+  res.status(200).json({ message: "Hello World" });
+});
 
 export default app;
