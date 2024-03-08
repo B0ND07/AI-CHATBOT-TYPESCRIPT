@@ -31,5 +31,3 @@ connectDatabase()
   .catch((err) => console.log(err));
 
 export default app;
-
-export default app;
