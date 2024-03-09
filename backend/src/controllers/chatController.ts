@@ -4,17 +4,19 @@ import { configureOpenAI } from "../config/openai-config.js";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
 
 export const generateChatCompletion = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) => {
   const { message } = req.body;
   try {
-    const user = await User.findById(res.locals.jwtData.id);
+    const user = await User.findById(req.user._id);
+
     if (!user)
       return res
         .status(401)
         .json({ message: "User not registered OR Token malfunctioned" });
+
     // grab chats of user
     const chats = user.chats.map(({ role, content }) => ({
       role,
@@ -41,13 +43,13 @@ export const generateChatCompletion = async (
 };
 
 export const getChats = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) => {
   const { message } = req.body;
   try {
-    const user = await User.findById(res.locals.jwtData.id);
+    const user = await User.findById(req.user._id);
     if (!user)
       return res
         .status(401)
@@ -64,24 +66,24 @@ export const getChats = async (
 };
 
 export const deleteChats = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) => {
   const { message } = req.body;
   try {
-    const user = await User.findById(res.locals.jwtData.id);
+    const user = await User.findById(req.user._id);
     if (!user)
       return res
         .status(401)
         .json({ message: "User not registered OR Token malfunctioned" });
 
-      //@ts-ignore
-        user.chats=[];
-        await user.save()
+    //@ts-ignore
+    user.chats = [];
+    await user.save();
     //grab chats of user
 
-    return res.status(200).json({ message:"ok" });
+    return res.status(200).json({ message: "ok" });
   } catch (error) {
     console.log(error);
 

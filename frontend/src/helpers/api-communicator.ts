@@ -59,8 +59,6 @@ export const deleteChats = async () => {
   if (res.status !== 200) {
     throw new Error("Unable to delete chat");
   }
-  const data = await res.data;
-  return data;
 };
 
 export const logoutUser = async () => {

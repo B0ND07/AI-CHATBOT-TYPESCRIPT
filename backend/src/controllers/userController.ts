@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { COOKIE_NAME } from "../utils/constants.js";
 
 export const userSignup = async (
   req: Request,
@@ -34,7 +33,7 @@ export const userSignup = async (
 
     const user = await User.create(newUser);
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id,email:user.email }, process.env.JWT_SECRET, {
       expiresIn: "2d",
     });
 
@@ -44,7 +43,7 @@ export const userSignup = async (
       expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       httpOnly: true,
       secure: true,
-      // sameSite: "None",
+      sameSite: "None" as any,
     };
     res.cookie("token", token, options);
 
@@ -70,7 +69,7 @@ export const userSignin = async (
     );
     if (!isPasswordCorrect) return res.json("Wrong password or username!");
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id,email:user.email }, process.env.JWT_SECRET, {
       expiresIn: "2d",
     });
 
@@ -80,7 +79,7 @@ export const userSignin = async (
       expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       httpOnly: true,
       secure: true,
-      // sameSite: "None",
+      sameSite: "None" as any,
     };
     res.cookie("token", token, options);
 
@@ -126,14 +125,6 @@ export const userLogout = async (
   next: NextFunction
 ) => {
   try {
-    // //user token check
-    // const user = await User.findById(res.locals.jwtData.id);
-    // if (!user) {
-    //   return res.status(401).send("User not registered OR Token malfunctioned");
-    // }
-    // if (user._id.toString() !== res.locals.jwtData.id) {
-    //   return res.status(401).send("Permissions didn't match");
-    // }
 
     res.clearCookie("token", {
       httpOnly: true,
