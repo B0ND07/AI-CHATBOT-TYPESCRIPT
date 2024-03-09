@@ -34,11 +34,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async function checkStatus() {
       try {
         const data = await checkAuthStatus();
-        if (data) {
+        
+        if (data.email) {
           setUser({ email: data.email, name: data.name });
           setIsLoggedIn(true);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
     checkStatus();
   }, []);
@@ -53,8 +56,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (email: string, name: string, password: string) => {
     try {
       const data = await RegisterUser(email, name, password);
-  
-
       if (data) {
         setUser({ email: data.email, name: data.name });
         setIsLoggedIn(true);
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await logoutUser();
     setIsLoggedIn(false);
     setUser(null);
-    window.location.reload();
+    // window.location.reload();
   };
 
   const value = {

@@ -30,7 +30,10 @@ export const checkAuthStatus = async () => {
   if(res){
   const data = await res.data;
   return data;}
-  }catch(err){}
+  }catch(err){
+    console.log(err);
+    
+  }
 };
 
 export const sendChatRequest = async (message: string) => {
@@ -61,10 +64,6 @@ export const deleteChats = async () => {
 };
 
 export const logoutUser = async () => {
-  const res = await axios.get("/user/logout");
-  if (res.status !== 200) {
-    throw new Error("Unable to delete chats");
-  }
-  const data = await res.data;
-  return data;
+  await axios.get("/user/logout");
+ 
 };

@@ -16,7 +16,7 @@ export const verifyToken = async (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.signedCookies[`${COOKIE_NAME}`];
+  const { token } = req.cookies;
   if (!token || token.trim() === "") {
     return res.status(401).json({ message: "Token Not Received" });
   }

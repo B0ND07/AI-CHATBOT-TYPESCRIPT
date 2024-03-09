@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { COOKIE_NAME } from "../utils/constants.js";
-
 
 export const userSignup = async (
   req: Request,
@@ -12,12 +11,13 @@ export const userSignup = async (
 ) => {
   try {
     const { name, email, password } = req.body;
-    console.log("gfasd",name,email,password);
-    
+
     if (!name || !email || !password) {
-      return res.status(400).json({ error: "Name, email, and password are required" });
+      return res
+        .status(400)
+        .json({ error: "Name, email, and password are required" });
     }
-    const existingUser = await User.findOne({ email});
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
         .status(400)
@@ -27,8 +27,8 @@ export const userSignup = async (
     const hash = bcrypt.hashSync(req.body.password, salt);
 
     const newUser = {
-      name:req.body.name,
-      email:req.body.email,
+      name: req.body.name,
+      email: req.body.email,
       password: hash,
     };
 
@@ -54,7 +54,6 @@ export const userSignup = async (
     console.log(err);
   }
 };
-
 
 export const userSignin = async (
   req: Request,
@@ -93,28 +92,33 @@ export const userSignin = async (
 };
 
 export const verifyUser = async (
-  req: Request& { user?: any },
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) => {
-  try{
-  const { token } = req.cookies;
+  try {
+    const { token } = req.cookies;
 
-  if (!token) {
-      return res.json("Please Login to access this resource.")
-  }
+    if (!token) {
+      return res.json("Please Login to access this resource.");
+    } else {
+      const decodedData = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      ) as JwtPayload;
+      const user = await User.findById(decodedData.id);
 
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
-  const user = await User.findById(decodedData.id)
+      if (!user) {
+        return res.json("Please Login to access this resource.");
+      }
 
-  if (!user) {
-      return res.json("Please Login to access this resource.")
-  }
-
-  req.user = user;
-  next();
-}catch(err){}
-}
+      req.user = user;
+      return res
+        .status(200)
+        .json({ message: "OK", name: user.name, email: user.email });
+    }
+  } catch (err) {}
+};
 
 export const userLogout = async (
   req: Request,
@@ -122,25 +126,23 @@ export const userLogout = async (
   next: NextFunction
 ) => {
   try {
-    //user token check
-    const user = await User.findById(res.locals.jwtData.id);
-    if (!user) {
-      return res.status(401).send("User not registered OR Token malfunctioned");
-    }
-    if (user._id.toString() !== res.locals.jwtData.id) {
-      return res.status(401).send("Permissions didn't match");
-    }
+    // //user token check
+    // const user = await User.findById(res.locals.jwtData.id);
+    // if (!user) {
+    //   return res.status(401).send("User not registered OR Token malfunctioned");
+    // }
+    // if (user._id.toString() !== res.locals.jwtData.id) {
+    //   return res.status(401).send("Permissions didn't match");
+    // }
 
-    res.clearCookie(COOKIE_NAME, {
+    res.clearCookie("token", {
       httpOnly: true,
       domain: "localhost",
       signed: true,
       path: "/",
     });
 
-    return res
-      .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
+    return res.status(200).json({ message: "OK" });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
