@@ -126,12 +126,13 @@ export const userLogout = async (
 ) => {
   try {
 
-    res.clearCookie("token", {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
       httpOnly: true,
-      domain: "localhost",
-      signed: true,
-      path: "/",
+      secure: true,
+      sameSite: "None" as any,
     });
+
 
     return res.status(200).json({ message: "OK" });
   } catch (error) {
