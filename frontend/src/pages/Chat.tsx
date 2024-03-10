@@ -31,6 +31,7 @@ const Chat = () => {
   };
 
   const handleSubmit = async () => {
+    toast.loading("Processing...", { id: "getchat" });
     const content = inputRef.current?.value as string;
     if (inputRef && inputRef.current) {
       inputRef.current.value = "";
@@ -39,10 +40,13 @@ const Chat = () => {
     setChatMessages((prev) => [...prev, newMessage]);
     const chatData = await sendChatRequest(content);
     setChatMessages([...chatData.chats]);
+    toast.success("", { id: "getchat" });
   };
   const handleDeleteChats = async () => {
+    toast.loading("Clearing Chats", { id: "clearchats" });
     await deleteChats();
     setChatMessages([]);
+    toast.success("Chat Cleared", { id: "clearchats" });
   };
   useEffect(() => {
     if (!auth?.user) {
@@ -83,6 +87,7 @@ const Chat = () => {
       <Box
         sx={{
           display: { md: "flex", xs: "none", sm: "none" },
+          marginTop: 9,
           flex: 0.2,
           flexDirection: "column",
         }}
@@ -91,7 +96,7 @@ const Chat = () => {
           sx={{
             display: "flex",
             width: "100%",
-            height: "60vh",
+            height: "100%",
             bgcolor: "rgb(17,29,39)",
             borderRadius: 5,
             flexDirection: "column",
@@ -110,7 +115,7 @@ const Chat = () => {
           <Typography sx={{ mx: "auto", fontFamily: "work sans" }}>
             You are talking to a ChatBOT
           </Typography>
-          <Typography sx={{ mx: "auto", fontFamily: "work sans", my: 4, p: 3 }}>
+          <Typography sx={{ mx: "auto", fontFamily: "work sans", my: 4, p: 4 }}>
             You can ask some questions related to Knowledge, Business, Advices,
             Education, etc. But avoid sharing personal information
           </Typography>
@@ -118,7 +123,8 @@ const Chat = () => {
             onClick={handleDeleteChats}
             sx={{
               width: "200px",
-              my: "auto",
+              mt: "auto",
+              mb:"2rem",
               color: "white",
               fontWeight: "700",
               borderRadius: 3,
@@ -136,6 +142,7 @@ const Chat = () => {
       <Box
         sx={{
           display: "flex",
+          height: "87vh",
           flex: { md: 0.8, xs: 1, sm: 1 },
           flexDirection: "column",
           px: 3,
@@ -155,7 +162,7 @@ const Chat = () => {
         <Box ref={chatContainerRef}
           sx={{
             width: "100%",
-            height: "60vh",
+            height: "79vh",
             borderRadius: 3,
             mx: "auto",
             display: "flex",
