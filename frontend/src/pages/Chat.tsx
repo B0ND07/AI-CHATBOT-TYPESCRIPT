@@ -18,6 +18,7 @@ type Message = {
 };
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -62,6 +63,12 @@ const Chat = () => {
         });
     }
   }, [auth]);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
   return (
     <Box
       sx={{
@@ -145,7 +152,7 @@ const Chat = () => {
         >
           Model - GPT 3.5 Turbo
         </Typography>
-        <Box
+        <Box ref={chatContainerRef}
           sx={{
             width: "100%",
             height: "60vh",
