@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
-axios.defaults.baseURL = "https://ai-chatbot-typescript.onrender.com/api/v1";
+axios.defaults.baseURL = "https://floating-wildwood-67782-cf5505787490.herokuapp.com/api/v1";
 axios.defaults.withCredentials=true
 const theme = createTheme({
   typography: {
